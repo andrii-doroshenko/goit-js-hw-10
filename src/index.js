@@ -21,9 +21,6 @@ function onSearch(e) {
   e.preventDefault();
   const str = e.target.value.trim();
 
-  refs.countriesList.innerHTML = '';
-  refs.countriesInfo.innerHTML = '';
-
   if (str === '') {
     return;
   }
@@ -33,6 +30,9 @@ function onSearch(e) {
   countriesApiService
     .fetchArticles()
     .then(data => {
+      refs.countriesList.innerHTML = '';
+      refs.countriesInfo.innerHTML = '';
+
       if (data.length > 10) {
         Notify.info(
           'Too many matches found. Please enter a more specific name.'
