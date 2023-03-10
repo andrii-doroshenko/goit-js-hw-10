@@ -30,52 +30,76 @@ function onSearch(e) {
   countriesApiService
     .fetchArticles()
     .then(data => {
-      refs.countriesList.innerHTML = '';
-      refs.countriesInfo.innerHTML = '';
-
-      if (data.length > 10) {
-        Notify.info(
-          'Too many matches found. Please enter a more specific name.'
-        );
-      } else if (data.length >= 2 && data.length <= 10) {
-        data.map(country => {
-          appendMarkup(country);
-        });
-      } else if (data.length === 1) {
-        data.map(country => {
-          appendCountryMarkup(country);
-        });
-      }
+      resetMarkup(refs);
+      overflowRes(data);
+      similarRes(data);
+      mainRes(data);
     })
     .catch(error => {
       Notify.failure('Oops, there is no country with that name');
     });
 }
 
+function overflowRes(data) {
+  if (data.length > 10) {
+    return Notify.info(
+      'Too many matches found. Please enter a more specific name.'
+    );
+  }
+}
+
+function similarRes(data) {
+  if (data.length >= 2 && data.length <= 10) {
+    refs.countriesList.insertAdjacentHTML('afterbegin', appendMarkup(data));
+  }
+}
+
+function mainRes(data) {
+  if (data.length === 1) {
+    refs.countriesList.insertAdjacentHTML(
+      'afterbegin',
+      appendCountryMarkup(data)
+    );
+    refs.countriesInfo.insertAdjacentHTML('afterbegin', appendInfoMarkup(data));
+  }
+}
+
+function resetMarkup(array) {
+  array.countriesInfo.innerHTML = '';
+  array.countriesList.innerHTML = '';
+}
+
 function appendMarkup(data) {
-  refs.countriesList.insertAdjacentHTML(
-    'afterbegin',
-    `<li class="country__item">
-        <img src="${data.flags.svg}" alt="" width="30" />
-        <p class="country-header">${data.name.official}</p>
+  return data
+    .map(country => {
+      return (
+        'afterbegin',
+        `<li class="country__item">
+        <img src="${country.flags.svg}" alt="The national flag of ${country.name.common}" width="30" />
+        <p class="country-header">${country.name.official}</p>
       </li>`
-  );
+      );
+    })
+    .join('\n\r');
 }
 
 function appendCountryMarkup(data) {
-  console.log(data);
-  refs.countriesList.insertAdjacentHTML(
-    'afterbegin',
-    `<li class="country__item">
-        <img src="${data.flags.svg}" alt="" width="50" />
-        <p class="country-header country-header--fsize">${data.name.common}</p>
-      </li>`
-  );
+  return data
+    .map(country => {
+      return `<li class="country__item">
+        <img src="${country.flags.svg}" alt="The national flag of ${country.name.common}" width="50" />
+        <p class="country-header country-header--fsize">${country.name.common}</p>
+      </li>`;
+    })
+    .join('\n\r');
+}
 
-  refs.countriesInfo.insertAdjacentHTML(
-    'afterbegin',
-    `<p><b>Capital:</b> ${data.capital}</p>
-    <p><b>Population:</b> ${data.population}</p>
-    <p><b>Languages:</b> ${Object.values(data.languages).join(', ')}</p>`
-  );
+function appendInfoMarkup(data) {
+  return data
+    .map(country => {
+      return `<p><b>Capital:</b> ${country.capital}</p>
+    <p><b>Population:</b> ${country.population}</p>
+    <p><b>Languages:</b> ${Object.values(country.languages)}</p>`;
+    })
+    .join('\n\r');
 }
