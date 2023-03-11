@@ -19,6 +19,11 @@ export default class CountriesApiService {
     });
   }
 
+  resetMarkup(array) {
+    array.countriesInfo.innerHTML = '';
+    array.countriesList.innerHTML = '';
+  }
+
   get query() {
     return this.searchQuery;
   }
